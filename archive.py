@@ -1,3 +1,4 @@
+import hashlib
 import os
 import shutil
 import time
@@ -10,7 +11,7 @@ def archive_it(archive_time_limit, target):
         return True
 
 def main():
-    ARCHIVE_TIME = 31556952 # seconds = 365.2425 days
+    ARCHIVE_TIME = 0.0 # 31556952 # seconds = 365.2425 days
     ARCHIVE_STORE = '/home/farrell/archive'
 
     cur_dir = os.getcwd()
@@ -35,8 +36,26 @@ def main():
 
         # Check for old files, and archive them if necessary.
         for _file in filenames:
-            if archive_it(ARCHIVE_TIME, os.path.join(dirpath,_file)):
-                shutil.copy(os.path.join(dirpath, _file), os.path.join(cur_arch_dir, _file))
+            src = os.path.join(dirpath, _file)
+            if archive_it(ARCHIVE_TIME, src):
+                dst = os.path.join(cur_arch_dir, _file)
+                shutil.copy(src, dst)
+
+                src_hash = hashlib.md5()
+                with open(src, 'rb') as src_file:
+                    buf = src_file.read()
+                    src_hash.update(buf)
+
+                dst_hash = hashlib.md5()
+                with open(dst, 'rb') as dst_file:
+                    buf = dst_file.read()
+                    dst_hash.update(buf)
+
+                if src_hash.hexdigest() == dst_hash.hexdigest():
+                    print("Victory")
+
+                else:
+                    print("Failure")
 
 if __name__ == '__main__':
     main()
