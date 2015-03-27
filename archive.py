@@ -12,6 +12,7 @@ def archive_it(archive_time_limit, target):
 def main():
     ARCHIVE_TIME = 31556952 # seconds = 365.2425 days
     ARCHIVE_STORE = '/home/farrell/archive'
+
     cur_dir = os.getcwd()
     old_path, root = os.path.split(cur_dir)
     archive_root = os.path.join(ARCHIVE_STORE, root)
@@ -25,14 +26,17 @@ def main():
     walk = os.walk(cur_dir)
 
     for step in walk:
-        cur_arch_dir = ARCHIVE_STORE + step[0][len(old_path):]
+        dirpath, dirnames, filenames = step[0], step[1], step[2]
+        cur_arch_dir = ARCHIVE_STORE + dirpath[len(old_path):]
 
-        for dir in step[1]: # dirnames
+        # Make the directories seen in this level of the walk.
+        for dir in dirnames:
             os.mkdir(os.path.join(cur_arch_dir, dir))
 
-        for _file in step[2]:
-            if archive_it(ARCHIVE_TIME, os.path.join(step[0],_file)):
-                shutil.copy(os.path.join(step[0], _file), os.path.join(cur_arch_dir, _file))
+        # Check for old files, and archive them if necessary.
+        for _file in filenames:
+            if archive_it(ARCHIVE_TIME, os.path.join(dirpath,_file)):
+                shutil.copy(os.path.join(dirpath, _file), os.path.join(cur_arch_dir, _file))
 
 if __name__ == '__main__':
     main()
