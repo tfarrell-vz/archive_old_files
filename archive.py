@@ -50,7 +50,7 @@ def main():
             src = os.path.join(dirpath, _file)
             if archive_it(archive_time, src):
                 dst = os.path.join(cur_arch_dir, _file)
-                shutil.copy(src, dst)
+                shutil.copy2(src, dst)
 
                 src_hash = gen_hash(src)
                 dst_hash = gen_hash(dst)
