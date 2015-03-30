@@ -20,8 +20,10 @@ def clean_empty_dirs(archive_root):
     walk = os.walk(archive_root, topdown=False)
     for step in walk:
         dirpath, dirnames, filenames = step[0], step[1], step[2]
-        if len(dirnames) == 0:
+        try:
             os.rmdir(dirpath)
+        except OSError:
+            pass
 
 def gen_hash(src_path):
     _hash = hashlib.md5()
