@@ -51,7 +51,7 @@ def main():
             src = os.path.join(dirpath, _file)
             if archive_it(archive_time, src):
                 dst = os.path.join(cur_arch_dir, _file)
-                win32file.CopyFile(src, dst)
+                win32file.CopyFile(src, dst, 0)
 
                 src_hash = gen_hash(src)
                 dst_hash = gen_hash(dst)
