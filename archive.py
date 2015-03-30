@@ -45,22 +45,28 @@ def main():
 
         # Make the directories seen in this level of the walk.
         for dir in dirnames:
-            os.mkdir(os.path.join(cur_arch_dir, dir))
+            if dir == 'DfsrPrivate':
+                pass
+            else:
+                os.mkdir(os.path.join(cur_arch_dir, dir))
 
         # Check for old files, and archive them if necessary.
         for _file in filenames:
-            src = os.path.join(dirpath, _file)
-            if archive_it(archive_time, src):
-                dst = os.path.join(cur_arch_dir, _file)
-                acl = win32security.GetFileSecurity(src, win32security.DACL_SECURITY_INFORMATION)
-                win32file.CopyFile(src, dst, 0)
-                win32security.SetFileSecurity(dst, win32security.DACL_SECURITY_INFORMATION, acl)
-                
-                src_hash = gen_hash(src)
-                dst_hash = gen_hash(dst)
+            if _file == 'thumbs.db':
+                pass
+            else:
+                src = os.path.join(dirpath, _file)
+                if archive_it(archive_time, src):
+                    dst = os.path.join(cur_arch_dir, _file)
+                    acl = win32security.GetFileSecurity(src, win32security.DACL_SECURITY_INFORMATION)
+                    win32file.CopyFile(src, dst, 0)
+                    win32security.SetFileSecurity(dst, win32security.DACL_SECURITY_INFORMATION, acl)
+                    
+                    src_hash = gen_hash(src)
+                    dst_hash = gen_hash(dst)
 
-                if src_hash.hexdigest() == dst_hash.hexdigest() and not SAFE_MODE:
-                    os.remove(src)
+                    if src_hash.hexdigest() == dst_hash.hexdigest() and not SAFE_MODE:
+                        os.remove(src)
 
 if __name__ == '__main__':
     main()
