@@ -16,6 +16,13 @@ def archive_it(archive_time_limit, target):
 def days_to_seconds(days):
     return 24.0 * 60.0 * 60.0 * days
 
+def clean_empty_dirs(archive_root):
+    walk = os.walk(archive_root, topdown=False)
+    for step in walk:
+        dirpath, dirnames, filenames = step[0], step[1], step[2]
+        if len(dirnames) == 0:
+            os.rmdir(dirpath)
+
 def gen_hash(src_path):
     _hash = hashlib.md5()
     with open(src_path, 'rb') as src_file:
@@ -51,8 +58,7 @@ def main():
                 os.mkdir(os.path.join(cur_arch_dir, dir))
 
         # Check for old files, and archive them if necessary.
-        for i, _file in enumerate(filenames):
-            last = len(filenames) - 1
+        for _file in filenames:
             if _file == 'thumbs.db':
                 pass
             else:
@@ -69,11 +75,8 @@ def main():
                     if src_hash.hexdigest() == dst_hash.hexdigest() and not SAFE_MODE:
                         os.remove(src)
 
-                    if i == last:
-                        try:
-                            os.rmdir(cur_arch_dir)
-                        except OSError:
-                            pass
+    # Clean up empty directories in the archive.
+    clean_empty_dirs(archive_root)
 
 if __name__ == '__main__':
     main()
