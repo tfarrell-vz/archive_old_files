@@ -46,7 +46,7 @@ def main():
         # Make the directories seen in this level of the walk.
         for dir in dirnames:
             if dir == 'DfsrPrivate':
-                pass
+                del(dir)
             else:
                 os.mkdir(os.path.join(cur_arch_dir, dir))
 
@@ -61,7 +61,7 @@ def main():
                     acl = win32security.GetFileSecurity(src, win32security.DACL_SECURITY_INFORMATION)
                     win32file.CopyFile(src, dst, 0)
                     win32security.SetFileSecurity(dst, win32security.DACL_SECURITY_INFORMATION, acl)
-                    
+
                     src_hash = gen_hash(src)
                     dst_hash = gen_hash(dst)
 
