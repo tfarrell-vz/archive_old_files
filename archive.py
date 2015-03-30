@@ -4,6 +4,7 @@ import shutil
 import sys
 import time
 import win32file
+import win32security
 
 SAFE_MODE = True
 
@@ -51,8 +52,10 @@ def main():
             src = os.path.join(dirpath, _file)
             if archive_it(archive_time, src):
                 dst = os.path.join(cur_arch_dir, _file)
+                acl = win32security.GetFileSecurity(src, win32security.DACL_SECURITY_INFORMATION)
                 win32file.CopyFile(src, dst, 0)
-
+                win32security.SetFileSecurity(dst, win32security.DACL_SECURITY_INFORMATION, acl)
+                
                 src_hash = gen_hash(src)
                 dst_hash = gen_hash(dst)
 
