@@ -3,6 +3,7 @@ import os
 import shutil
 import sys
 import time
+import win32file
 
 SAFE_MODE = True
 
@@ -50,7 +51,7 @@ def main():
             src = os.path.join(dirpath, _file)
             if archive_it(archive_time, src):
                 dst = os.path.join(cur_arch_dir, _file)
-                shutil.copy2(src, dst)
+                win32file.CopyFile(src, dst)
 
                 src_hash = gen_hash(src)
                 dst_hash = gen_hash(dst)
