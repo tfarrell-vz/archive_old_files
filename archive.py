@@ -43,6 +43,7 @@ def main():
         dirpath, dirnames, filenames = step[0], step[1], step[2]
         cur_arch_dir = archive_store + dirpath[len(old_path):]
 
+        print(dirpath)
         # Make the directories seen in this level of the walk.
         if 'dfsr' in dirpath.lower():
             pass
@@ -50,7 +51,7 @@ def main():
         else:
             for dir in dirnames:
                 if dir == 'DfsrPrivate':
-                    del(dir)
+                    del(dirnames[dirnames.index(dir)])
                 else:
                     os.mkdir(os.path.join(cur_arch_dir, dir))
 
