@@ -12,6 +12,9 @@ def archive_it(archive_time_limit, target):
     else:
         return True
 
+def days_to_seconds(days):
+    return 24.0 * 60.0 * 60.0 * days
+
 def gen_hash(src_path):
     _hash = hashlib.md5()
     with open(src_path, 'rb') as src_file:
@@ -20,8 +23,7 @@ def gen_hash(src_path):
     return _hash
 
 def main():
-    ARCHIVE_TIME = 0.0 # 31556952 # seconds = 365.2425 days
-
+    archive_time = days_to_seconds(float(sys.argv[3]))
     archive_store = sys.argv[2]
     cur_dir = sys.argv[1]
     old_path, root = os.path.split(cur_dir)
@@ -46,7 +48,7 @@ def main():
         # Check for old files, and archive them if necessary.
         for _file in filenames:
             src = os.path.join(dirpath, _file)
-            if archive_it(ARCHIVE_TIME, src):
+            if archive_it(archive_time, src):
                 dst = os.path.join(cur_arch_dir, _file)
                 shutil.copy(src, dst)
 
