@@ -1,6 +1,7 @@
 import hashlib
 import os
 import shutil
+import sys
 import time
 
 SAFE_MODE = True
@@ -20,23 +21,23 @@ def gen_hash(src_path):
 
 def main():
     ARCHIVE_TIME = 0.0 # 31556952 # seconds = 365.2425 days
-    ARCHIVE_STORE = '/home/farrell/archive'
 
-    cur_dir = os.getcwd()
+    archive_store = sys.argv[2]
+    cur_dir = sys.argv[1]
     old_path, root = os.path.split(cur_dir)
-    archive_root = os.path.join(ARCHIVE_STORE, root)
+    archive_root = os.path.join(archive_store, root)
     os.mkdir(archive_root)
 
     print("The (old) path prior to the directory to be archived %s" % old_path)
     print("Current directory: %s" % cur_dir)
-    print("Archives are stored in: %s" % ARCHIVE_STORE)
+    print("Archives are stored in: %s" % archive_store)
     print("Archive root for the present archival process: %s" % archive_root)
 
     walk = os.walk(cur_dir)
 
     for step in walk:
         dirpath, dirnames, filenames = step[0], step[1], step[2]
-        cur_arch_dir = ARCHIVE_STORE + dirpath[len(old_path):]
+        cur_arch_dir = archive_store + dirpath[len(old_path):]
 
         # Make the directories seen in this level of the walk.
         for dir in dirnames:
@@ -57,10 +58,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
-
-
-
-
-
-
