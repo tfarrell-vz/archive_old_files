@@ -3,12 +3,20 @@ import os
 import shutil
 import time
 
+SAFE_MODE = True
 
 def archive_it(archive_time_limit, target):
     if time.time() - os.path.getmtime(target) < archive_time_limit:
         return False
     else:
         return True
+
+def gen_hash(src_path):
+    _hash = hashlib.md5()
+    with open(src_path, 'rb') as src_file:
+        buf = src_file.read()
+        _hash.update(buf)
+    return _hash
 
 def main():
     ARCHIVE_TIME = 0.0 # 31556952 # seconds = 365.2425 days
@@ -41,21 +49,11 @@ def main():
                 dst = os.path.join(cur_arch_dir, _file)
                 shutil.copy(src, dst)
 
-                src_hash = hashlib.md5()
-                with open(src, 'rb') as src_file:
-                    buf = src_file.read()
-                    src_hash.update(buf)
+                src_hash = gen_hash(src)
+                dst_hash = gen_hash(dst)
 
-                dst_hash = hashlib.md5()
-                with open(dst, 'rb') as dst_file:
-                    buf = dst_file.read()
-                    dst_hash.update(buf)
-
-                if src_hash.hexdigest() == dst_hash.hexdigest():
-                    print("Victory")
-
-                else:
-                    print("Failure")
+                if src_hash.hexdigest() == dst_hash.hexdigest() and not SAFE_MODE:
+                    os.remove(src)
 
 if __name__ == '__main__':
     main()
