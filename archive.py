@@ -19,7 +19,7 @@ def days_to_seconds(days):
 def clean_empty_dirs(archive_root):
     walk = os.walk(archive_root, topdown=False)
     for step in walk:
-        dirpath, dirnames, filenames = step[0], step[1], step[2]
+        dirpath = step[0]
         try:
             os.rmdir(dirpath)
         except OSError:
