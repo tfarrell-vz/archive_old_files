@@ -1,9 +1,8 @@
 import hashlib
 import os
+import platform
 import sys
 import time
-import win32file
-import win32security
 
 SAFE_MODE = True
 
@@ -40,10 +39,10 @@ def main():
     archive_root = os.path.join(archive_store, root)
     os.mkdir(archive_root)
 
-    print("The (old) path prior to the directory to be archived %s" % old_path)
+    print("\nThe (old) path prior to the directory to be archived %s" % old_path)
     print("Current directory: %s" % cur_dir)
     print("Archives are stored in: %s" % archive_store)
-    print("Archive root for the present archival process: %s" % archive_root)
+    print("Archive root for the present archival process: %s\n" % archive_root)
 
     walk = os.walk(cur_dir)
 
@@ -67,9 +66,17 @@ def main():
                 src = os.path.join(dirpath, _file)
                 if archive_it(archive_time, src):
                     dst = os.path.join(cur_arch_dir, _file)
-                    acl = win32security.GetFileSecurity(src, win32security.DACL_SECURITY_INFORMATION)
-                    win32file.CopyFile(src, dst, 0)
-                    win32security.SetFileSecurity(dst, win32security.DACL_SECURITY_INFORMATION, acl)
+
+                    if platform.system() == 'Windows':
+                        import win32file
+                        import win32security
+                        acl = win32security.GetFileSecurity(src, win32security.DACL_SECURITY_INFORMATION)
+                        win32file.CopyFile(src, dst, 0)
+                        win32security.SetFileSecurity(dst, win32security.DACL_SECURITY_INFORMATION, acl)
+
+                    else:
+                        import shutil
+                        shutil.copy2(src, dst)
 
                     src_hash = gen_hash(src)
                     dst_hash = gen_hash(dst)
