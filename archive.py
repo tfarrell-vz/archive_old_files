@@ -56,7 +56,10 @@ def main():
             if dir == 'DfsrPrivate':
                 del(dirnames[dirnames.index(dir)])
             else:
-                os.mkdir(os.path.join(cur_arch_dir, dir))
+                try:
+                    os.mkdir(os.path.join(cur_arch_dir, dir))
+                except FileExistsError:
+                    pass
 
         # Check for old files, and archive them if necessary.
         for _file in filenames:
