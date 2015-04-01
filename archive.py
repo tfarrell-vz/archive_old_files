@@ -1,6 +1,7 @@
 import hashlib
 import os
 import platform
+import shutil
 import sys
 import time
 
@@ -71,14 +72,16 @@ def main():
                     dst = os.path.join(cur_arch_dir, _file)
 
                     if platform.system() == 'Windows':
-                        import win32file
-                        import win32security
-                        acl = win32security.GetFileSecurity(src, win32security.DACL_SECURITY_INFORMATION)
-                        win32file.CopyFile(src, dst, 0)
-                        win32security.SetFileSecurity(dst, win32security.DACL_SECURITY_INFORMATION, acl)
+                        try:
+                            import win32file
+                            import win32security
+                            acl = win32security.GetFileSecurity(src, win32security.DACL_SECURITY_INFORMATION)
+                            win32file.CopyFile(src, dst, 0)
+                            win32security.SetFileSecurity(dst, win32security.DACL_SECURITY_INFORMATION, acl)
+                        except ImportError:
+                            shutil.copy2(src, dst)
 
                     else:
-                        import shutil
                         shutil.copy2(src, dst)
 
                     src_hash = gen_hash(src)
