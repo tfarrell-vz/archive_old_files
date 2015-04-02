@@ -93,5 +93,8 @@ def main():
     # Clean up empty directories in the archive.
     clean_empty_dirs(archive_root)
 
+    if not SAFE_MODE:
+        clean_empty_dirs(cur_dir)
+
 if __name__ == '__main__':
     main()
