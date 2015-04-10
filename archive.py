@@ -45,7 +45,12 @@ def main():
     cur_dir = sys.argv[1]
     old_path, root = os.path.split(cur_dir)
     archive_root = os.path.join(archive_store, root)
-    os.mkdir(archive_root)
+    
+    try:
+        os.mkdir(archive_root)
+
+    except FileExistsError:
+        pass
 
     print("\nThe (old) path prior to the directory to be archived %s" % old_path)
     print("Current directory: %s" % cur_dir)
