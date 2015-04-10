@@ -32,6 +32,13 @@ def gen_hash(src_path):
         _hash.update(buf)
     return _hash
 
+def equal_hashes(file_1, file_2):
+    file_1_hash, file_2_hash = gen_hash(file_1), gen_hash(file_2)
+    if file_1_hash.hexdigest() == file_2_hash.hexdigest():
+        return True
+    else:
+        return False
+
 def main():
     archive_time = days_to_seconds(float(sys.argv[3]))
     archive_store = sys.argv[2]
