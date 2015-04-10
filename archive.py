@@ -39,13 +39,19 @@ def equal_hashes(file_1, file_2):
     else:
         return False
 
+def remove_slash(path):
+    if len(path) > 1 and not os.path.split(path)[1]:
+        return path[:len(path)-1]
+    else:
+        return path
+
 def main():
     archive_time = days_to_seconds(float(sys.argv[3]))
-    archive_store = sys.argv[2]
-    cur_dir = sys.argv[1]
+    archive_store = remove_slash(sys.argv[2])
+    cur_dir = remove_slash(sys.argv[1])
     old_path, root = os.path.split(cur_dir)
     archive_root = os.path.join(archive_store, root)
-    
+
     try:
         os.mkdir(archive_root)
 
