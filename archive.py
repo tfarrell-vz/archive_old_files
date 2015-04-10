@@ -1,6 +1,5 @@
 import hashlib
 import os
-import platform
 import shutil
 import sys
 import time
@@ -16,8 +15,8 @@ def archive_it(archive_time_limit, target):
 def days_to_seconds(days):
     return 24.0 * 60.0 * 60.0 * days
 
-def clean_empty_dirs(archive_root):
-    walk = os.walk(archive_root, topdown=False)
+def clean_empty_dirs(root):
+    walk = os.walk(root, topdown=False)
     for step in walk:
         dirpath = step[0]
         try:
@@ -39,7 +38,7 @@ def equal_hashes(file_1, file_2):
     else:
         return False
 
-def remove_slash(path):
+def remove_trailing_slash(path):
     if len(path) > 1 and not os.path.split(path)[1]:
         return path[:len(path)-1]
     else:
@@ -47,8 +46,8 @@ def remove_slash(path):
 
 def main():
     archive_time = days_to_seconds(float(sys.argv[3]))
-    archive_store = remove_slash(sys.argv[2])
-    cur_dir = remove_slash(sys.argv[1])
+    archive_store = remove_trailing_slash(sys.argv[2])
+    cur_dir = remove_trailing_slash(sys.argv[1])
     old_path, root = os.path.split(cur_dir)
     archive_root = os.path.join(archive_store, root)
 
@@ -86,20 +85,16 @@ def main():
                 pass
             else:
                 src = os.path.join(dirpath, _file)
-                if archive_it(archive_time, src):
+                if os.path.isfile(src) and archive_it(archive_time, src):
                     dst = os.path.join(cur_arch_dir, _file)
 
-                    if platform.system() == 'Windows':
-                        try:
-                            import win32file
-                            import win32security
-                            acl = win32security.GetFileSecurity(src, win32security.DACL_SECURITY_INFORMATION)
-                            win32file.CopyFile(src, dst, 0)
-                            win32security.SetFileSecurity(dst, win32security.DACL_SECURITY_INFORMATION, acl)
-                        except ImportError:
-                            shutil.copy2(src, dst)
-
-                    else:
+                    try:
+                        import win32file
+                        import win32security
+                        acl = win32security.GetFileSecurity(src, win32security.DACL_SECURITY_INFORMATION)
+                        win32file.CopyFile(src, dst, 0)
+                        win32security.SetFileSecurity(dst, win32security.DACL_SECURITY_INFORMATION, acl)
+                    except ImportError:
                         shutil.copy2(src, dst)
 
                     src_hash = gen_hash(src)
@@ -111,6 +106,7 @@ def main():
     # Clean up empty directories in the archive.
     clean_empty_dirs(archive_root)
 
+    # Clean up empty directories in the source directory.
     if not SAFE_MODE:
         clean_empty_dirs(cur_dir)
 
