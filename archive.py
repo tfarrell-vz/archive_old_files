@@ -46,6 +46,9 @@ def remove_trailing_slash(path):
         return path
 
 def main():
+    EXCLUDE_DIRS = set('DfsrPrivate')
+    EXCLUDE_FILES = set('thumbs.db')
+
     archive_time = days_to_seconds(float(sys.argv[3]))
     archive_store = remove_trailing_slash(sys.argv[2])
     cur_dir = remove_trailing_slash(sys.argv[1])
@@ -72,18 +75,22 @@ def main():
         print(dirpath)
         # Make the directories seen in this level of the walk.
         for dir in dirnames:
-            if dir == 'DfsrPrivate':
+            if dir in EXCLUDE_DIRS:
                 del(dirnames[dirnames.index(dir)])
+
             else:
                 try:
                     os.mkdir(os.path.join(cur_arch_dir, dir))
+
                 except FileExistsError:
+                    # If the directory already exists in the archive, nothing further must be done.
                     pass
 
         # Check for old files, and archive them if necessary.
         for _file in filenames:
-            if _file == 'thumbs.db':
-                pass
+            if _file in EXCLUDE_FILES:
+                continue
+
             else:
                 src = os.path.join(dirpath, _file)
                 if os.path.isfile(src) and archive_it(archive_time, src):
@@ -95,6 +102,7 @@ def main():
                             import win32file
                             import win32security
                             pywin32 = True
+
                         except ImportError:
                             # Notify user that permissions will be lost if they proceed.
                             pass
@@ -104,8 +112,10 @@ def main():
                             acl = win32security.GetFileSecurity(src, win32security.DACL_SECURITY_INFORMATION)
                             win32file.CopyFile(src, dst, 0)
                             win32security.SetFileSecurity(dst, win32security.DACL_SECURITY_INFORMATION, acl)
+
                         else:
                             shutil.copy2(src, dst)
+
                     except PermissionError:
                         # Log which file can't be copied.
                         pass
