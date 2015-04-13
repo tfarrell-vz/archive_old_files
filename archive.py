@@ -1,5 +1,6 @@
 import hashlib
 import os
+import platform
 import shutil
 import sys
 import time
@@ -88,14 +89,26 @@ def main():
                 if os.path.isfile(src) and archive_it(archive_time, src):
                     dst = os.path.join(cur_arch_dir, _file)
 
+                    pywin32 = False
+                    if platform.system() == 'Windows':
+                        try:
+                            import win32file
+                            import win32security
+                            pywin32 = True
+                        except ImportError:
+                            # Notify user that permissions will be lost if they proceed.
+                            pass
+
                     try:
-                        import win32file
-                        import win32security
-                        acl = win32security.GetFileSecurity(src, win32security.DACL_SECURITY_INFORMATION)
-                        win32file.CopyFile(src, dst, 0)
-                        win32security.SetFileSecurity(dst, win32security.DACL_SECURITY_INFORMATION, acl)
-                    except ImportError:
-                        shutil.copy2(src, dst)
+                        if pywin32:
+                            acl = win32security.GetFileSecurity(src, win32security.DACL_SECURITY_INFORMATION)
+                            win32file.CopyFile(src, dst, 0)
+                            win32security.SetFileSecurity(dst, win32security.DACL_SECURITY_INFORMATION, acl)
+                        else:
+                            shutil.copy2(src, dst)
+                    except PermissionError:
+                        # Log which file can't be copied.
+                        pass
 
                     src_hash = gen_hash(src)
                     dst_hash = gen_hash(dst)
