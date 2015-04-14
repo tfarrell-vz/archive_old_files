@@ -126,11 +126,11 @@ def main():
                     if src_hash.hexdigest() == dst_hash.hexdigest() and not SAFE_MODE:
                         os.remove(src)
 
-    # Clean up empty directories in the archive.
-    clean_empty_dirs(archive_root)
-
-    # Clean up empty directories in the source directory.
     if not SAFE_MODE:
+        # Clean up empty directories in the archive.
+        clean_empty_dirs(archive_root)
+
+        # Clean up empty directories in the source directory.
         clean_empty_dirs(cur_dir)
 
 if __name__ == '__main__':
