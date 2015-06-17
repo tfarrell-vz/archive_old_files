@@ -81,7 +81,7 @@ def main():
 
         # Make the directories seen in this level of the walk.
         for dir in dirnames:
-            if dir == 'DfsrPrivate':
+            if 'DfsrPrivate' in dirnames:
                 dirnames.remove('DfsrPrivate')
 
             else:
