@@ -55,6 +55,8 @@ def main():
     old_path, root = os.path.split(cur_dir)
     archive_root = os.path.join(archive_store, root)
 
+    problems = []
+
     try:
         os.mkdir(archive_root)
 
@@ -86,6 +88,10 @@ def main():
                     # If the directory already exists in the archive, nothing further must be done.
                     pass
 
+                except FileNotFoundError:
+                    problems.append(dirpath)
+
+
         # Check for old files, and archive them if necessary.
         for _file in filenames:
             if _file in EXCLUDE_FILES:
@@ -116,15 +122,19 @@ def main():
                         else:
                             shutil.copy2(src, dst)
 
+                        src_hash = gen_hash(src)
+                        dst_hash = gen_hash(dst)
+
+                        if src_hash.hexdigest() == dst_hash.hexdigest() and not SAFE_MODE:
+                            os.remove(src)
+
                     except PermissionError:
                         # Log which file can't be copied.
                         pass
 
-                    src_hash = gen_hash(src)
-                    dst_hash = gen_hash(dst)
+                    except FileNotFoundError:
+                        problems.append(src)
 
-                    if src_hash.hexdigest() == dst_hash.hexdigest() and not SAFE_MODE:
-                        os.remove(src)
 
     if not SAFE_MODE:
         # Clean up empty directories in the archive.
@@ -132,6 +142,11 @@ def main():
 
         # Clean up empty directories in the source directory.
         clean_empty_dirs(cur_dir)
+
+    # Error reporting
+    with open('problems.txt', mode='w', encoding='utf-8') as a_file:
+        for item in problems:
+            a_file.write("%s\n" % item)
 
 if __name__ == '__main__':
     main()
