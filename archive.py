@@ -81,8 +81,8 @@ def main():
 
         # Make the directories seen in this level of the walk.
         for dir in dirnames:
-            if dir in EXCLUDE_DIRS:
-                del(dirnames[dirnames.index(dir)])
+            if dir == 'DfsrPrivate':
+                dirnames.remove('DfsrPrivate')
 
             else:
                 try:
