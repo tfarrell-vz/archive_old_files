@@ -74,7 +74,11 @@ def main():
         dirpath, dirnames, filenames = step[0], step[1], step[2]
         cur_arch_dir = archive_store + dirpath[len(old_path):]
 
-        print(dirpath)
+        try:
+            print(dirpath)
+        except UnicodeEncodeError:
+            print("Unicode character not supported by your console.")
+
         # Make the directories seen in this level of the walk.
         for dir in dirnames:
             if dir in EXCLUDE_DIRS:
