@@ -20,8 +20,10 @@ def clean_empty_dirs(root):
     walk = os.walk(root, topdown=False)
     for step in walk:
         dirpath = step[0]
+        print(dirpath)
         try:
             os.rmdir(dirpath)
+            print("Removed: %s" % dirpath)
         except OSError:
             pass
 
@@ -46,9 +48,6 @@ def remove_trailing_slash(path):
         return path
 
 def main():
-    EXCLUDE_DIRS = set('DfsrPrivate')
-    EXCLUDE_FILES = set('thumbs.db')
-
     archive_time = days_to_seconds(float(sys.argv[3]))
     archive_store = remove_trailing_slash(sys.argv[2])
     cur_dir = remove_trailing_slash(sys.argv[1])
@@ -74,6 +73,9 @@ def main():
         dirpath, dirnames, filenames = step[0], step[1], step[2]
         cur_arch_dir = archive_store + dirpath[len(old_path):]
 
+        dirnames[:] = [d for d in dirnames if 'DfsrPrivate' not in d]
+        filenames[:] = [f for f in filenames if 'thumbs.db' not in f]
+
         try:
             print(dirpath)
         except UnicodeEncodeError:
@@ -81,19 +83,15 @@ def main():
 
         # Make the directories seen in this level of the walk.
         for dir in dirnames:
-            if 'DfsrPrivate' in dirnames:
-                dirnames.remove('DfsrPrivate')
+            try:
+                os.mkdir(os.path.join(cur_arch_dir, dir))
 
-            else:
-                try:
-                    os.mkdir(os.path.join(cur_arch_dir, dir))
+            except FileExistsError:
+                # If the directory already exists in the archive, nothing further must be done.
+                pass
 
-                except FileExistsError:
-                    # If the directory already exists in the archive, nothing further must be done.
-                    pass
-
-                except FileNotFoundError:
-                    problems.append(dirpath)
+            except FileNotFoundError:
+                problems.append(dirpath)
 
 
         # Check for old files, and archive them if necessary.
@@ -142,15 +140,17 @@ def main():
 
     if not SAFE_MODE:
         # Clean up empty directories in the archive.
+        print("Cleaning directories under: %s" % archive_root)
         clean_empty_dirs(archive_root)
 
         # Clean up empty directories in the source directory.
+        print("Cleaning directories under: %s" % cur_dir)
         clean_empty_dirs(cur_dir)
 
     # Error reporting
     with open('problems.txt', mode='w', encoding='utf-8') as a_file:
-        for item in problems:
-            a_file.write("%s\n" % item)
+        for problem in problems:
+            a_file.write("%s\n" % problems)
 
 if __name__ == '__main__':
     main()
