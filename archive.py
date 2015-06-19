@@ -20,10 +20,20 @@ def clean_empty_dirs(root):
     walk = os.walk(root, topdown=False)
     for step in walk:
         dirpath = step[0]
-        print(dirpath)
+        try:
+            print(dirpath)
+
+        except UnicodeEncodeError:
+            print("Unicode character not supported by your console.")
+
         try:
             os.rmdir(dirpath)
-            print("Removed: %s" % dirpath)
+
+            try:
+                print("Removed: %s" % dirpath)
+            except UnicodeEncodeError:
+                print("Unicode character not supported by your console.")
+
         except OSError:
             pass
 
@@ -53,6 +63,8 @@ def main():
     cur_dir = remove_trailing_slash(sys.argv[1])
     old_path, root = os.path.split(cur_dir)
     archive_root = os.path.join(archive_store, root)
+
+    EXCLUDE_FILES = set('thumbs.db')
 
     problems = []
 
