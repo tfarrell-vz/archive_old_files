@@ -7,6 +7,8 @@ import time
 
 SAFE_MODE = True
 
+UNICODE_ENCODE_ERR = "Unicode character not supported by your console."
+
 def archive_it(archive_time_limit, target):
     if time.time() - os.path.getmtime(target) < archive_time_limit:
         return False
@@ -23,12 +25,12 @@ def clean_empty_dirs(root):
 
         if 'DfsrPrivate' in dirpath:
             continue
-            
+
         try:
             print(dirpath)
 
         except UnicodeEncodeError:
-            print("Unicode character not supported by your console.")
+            print(UNICODE_ENCODE_ERR)
 
         try:
             os.rmdir(dirpath)
@@ -36,10 +38,13 @@ def clean_empty_dirs(root):
             try:
                 print("Removed: %s" % dirpath)
             except UnicodeEncodeError:
-                print("Unicode character not supported by your console.")
+                print(UNICODE_ENCODE_ERR)
 
         except OSError:
-            pass
+            try:
+                print("Unable to remove: %s" % dirpath)
+            except UnicodeEncodeError:
+                print(UNICODE_ENCODE_ERR)
 
 def gen_hash(src_path):
     _hash = hashlib.md5()
@@ -96,7 +101,7 @@ def main():
         try:
             print(dirpath)
         except UnicodeEncodeError:
-            print("Unicode character not supported by your console.")
+            print(UNICODE_ENCODE_ERR)
 
         # Make the directories seen in this level of the walk.
         for dir in dirnames:
