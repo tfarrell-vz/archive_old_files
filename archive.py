@@ -20,6 +20,10 @@ def clean_empty_dirs(root):
     walk = os.walk(root, topdown=False)
     for step in walk:
         dirpath = step[0]
+
+        if 'DfsrPrivate' in dirpath:
+            continue
+            
         try:
             print(dirpath)
 
@@ -69,6 +73,7 @@ def main():
     problems = []
 
     try:
+
         os.mkdir(archive_root)
 
     except FileExistsError:
